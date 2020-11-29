@@ -48,6 +48,27 @@ class App extends Component {
     this.state = initialState;
   }
 
+  componentDidMount() {
+    const token = window.sessionStorage.getItem("SmartBrainToken");
+    console.log(token);
+    if (token) {
+      fetch("http://localhost:3000/signin", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authentication: token,
+        },
+      })
+        .then((data) => data.json())
+        .then((data) => {
+          if (data && data.id) {
+            console.log("We got the token, we need the profile");
+          }
+        })
+        .catch(console.log);
+    }
+  }
+
   loadUser = (data) => {
     this.setState({
       user: {
