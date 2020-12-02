@@ -29,6 +29,7 @@ const initialState = {
   imageUrl: "",
   boxes: [],
   route: "signin",
+  loading: false,
   isSignedIn: false,
   isProfileOpen: false,
   user: {
@@ -50,8 +51,8 @@ class App extends Component {
 
   componentDidMount() {
     const token = window.sessionStorage.getItem("SmartBrainToken");
-    console.log(token);
     if (token) {
+      this.setState({ loading: true });
       fetch("http://localhost:3000/signin", {
         method: "post",
         headers: {
@@ -62,12 +63,34 @@ class App extends Component {
         .then((data) => data.json())
         .then((data) => {
           if (data && data.id) {
-            console.log("We got the token, we need the profile");
+            this.fetchProfile(token, data.id);
+          } else {
+            this.setState({ loading: false });
           }
         })
         .catch(console.log);
+    } else {
+      this.setState({ loading: false });
     }
   }
+
+  fetchProfile = (token, id) => {
+    fetch(`http://localhost:3000/profile/${id}`, {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authentication: token,
+      },
+    })
+      .then((data) => data.json())
+      .then((user) => {
+        if (user.email) {
+          this.loadUser(user);
+          this.onRouteChange("home");
+        }
+      })
+      .catch((err) => console.log);
+  };
 
   loadUser = (data) => {
     this.setState({
@@ -136,6 +159,7 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if (route === "signout") {
+      window.sessionStorage.removeItem("SmartBrainToken");
       return this.setState(initialState);
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
@@ -154,6 +178,7 @@ class App extends Component {
     const {
       isSignedIn,
       imageUrl,
+      loading,
       route,
       boxes,
       isProfileOpen,
@@ -191,7 +216,15 @@ class App extends Component {
             <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
           </div>
         ) : route === "signin" ? (
-          <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+          loading ? (
+            <h1>Loading</h1>
+          ) : (
+            <Signin
+              loadUser={this.loadUser}
+              onRouteChange={this.onRouteChange}
+              fetchProfile={this.fetchProfile}
+            />
+          )
         ) : (
           <Register
             loadUser={this.loadUser}
