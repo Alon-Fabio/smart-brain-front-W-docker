@@ -30,13 +30,19 @@ class Profile extends React.Component {
   onProfileSave = (data) => {
     fetch(`http://localhost:3000/profile/${this.props.user.id}`, {
       method: "post",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authentication: window.sessionStorage.getItem("SmartBrainToken"),
+      },
       body: JSON.stringify({ formInput: data }),
     })
       .then((response) => response.json())
       .then((response) => {
         if (response) {
-          if (response === "success") {
+          if (
+            (response === "success" && response.status(200)) ||
+            response.status(304)
+          ) {
             this.props.toggleModal();
             this.props.loadUser({ ...this.props.user, ...data });
           } else {
