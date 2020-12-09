@@ -97,6 +97,8 @@ class App extends Component {
       user: {
         id: data.id,
         name: data.name,
+        age: data.age,
+        pet: data.pet,
         email: data.email,
         entries: data.entries,
         joined: data.joined,
@@ -239,6 +241,7 @@ class App extends Component {
         ) : (
           <Register
             loadUser={this.loadUser}
+            fetchProfile={this.fetchProfile}
             onRouteChange={this.onRouteChange}
           />
         )}

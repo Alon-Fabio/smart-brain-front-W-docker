@@ -36,21 +36,16 @@ class Profile extends React.Component {
       },
       body: JSON.stringify({ formInput: data }),
     })
-      .then((response) => response.json())
       .then((response) => {
-        if (response) {
-          if (
-            (response === "success" && response.status(200)) ||
-            response.status(304)
-          ) {
-            this.props.toggleModal();
-            this.props.loadUser({ ...this.props.user, ...data });
-          } else {
-            alert("Something went wrong.. please try again later.");
-          }
+        if (response.status === 200 || response.status === 304) {
+          this.props.toggleModal();
+          this.props.loadUser({ ...this.props.user, ...data });
+        } else {
+          alert("Something went wrong.. please try again later.");
         }
       })
-      .catch((err) => console.log(err));
+
+      .catch(console.log);
   };
 
   render() {
@@ -89,7 +84,7 @@ class Profile extends React.Component {
             </label>
             <input
               className="pa2 ba w-100"
-              placeholder={user.age || "immortal!"}
+              placeholder={age || "immortal!"}
               type="text"
               name="user-age"
               id="age"
@@ -100,7 +95,7 @@ class Profile extends React.Component {
             </label>
             <input
               className="pa2 ba w-100"
-              placeholder={user.pet}
+              placeholder={pet}
               type="text"
               name="pet-name"
               id="pet"
